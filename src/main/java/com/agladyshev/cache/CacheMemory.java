@@ -12,11 +12,11 @@ public class CacheMemory<K, V> implements Cache<K, V> {
     @Override
     public V put(K key, V val) {
         V result;
-        lock.writeLock().lock();
+       // lock.writeLock().lock();
         try {
             result = storage.put(key, val);
         } finally {
-            lock.writeLock().unlock();
+        //    lock.writeLock().unlock();
         }
         return result;
     }
@@ -78,7 +78,7 @@ public class CacheMemory<K, V> implements Cache<K, V> {
         lock.writeLock().lock();
         Iterator<Map.Entry<K, V>> iterator = storage.entrySet().iterator();
         int n = 0;
-        while (iterator.hasNext() && n < num) {
+        while (iterator.hasNext() && n <num) {
             n++;
             Map.Entry<K, V> x = iterator.next();
             list.add(x);

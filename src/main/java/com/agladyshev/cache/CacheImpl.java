@@ -5,6 +5,8 @@ package com.agladyshev.cache;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public class CacheImpl<K extends Serializable, V extends Serializable> implements Cache<K, V> {
@@ -13,6 +15,7 @@ public class CacheImpl<K extends Serializable, V extends Serializable> implement
     private StrategyType strategy;
     private final int sizeCasheMemory;
     private final int sizeCasheDisk;
+    private final ReentrantReadWriteLock  lock = new ReentrantReadWriteLock();
 
     public CacheImpl(StrategyType strategy, int sizeCasheMemory, int sizeCasheDisk) {
         this.sizeCasheMemory = sizeCasheMemory;
@@ -21,28 +24,50 @@ public class CacheImpl<K extends Serializable, V extends Serializable> implement
     }
 
     @Override
-    public V put(K key, V val) {
+    public   V put(K key, V val) {
+
+
+
              if (containsKey(key)) {
             System.out.println("key " + key + " is already contains");
             return val;
         }
 
         if (casheMemory.size() < sizeCasheMemory) {
-            casheMemory.put(key, val);
+           lock.writeLock().lock();
+
+            try {
+                casheMemory.put(key, val);
+            } finally {
+                lock.writeLock().unlock();
+            }
+            System.out.println(casheDisk.size() + "  " + casheMemory.size());
+
         } else {
-            if (casheDisk.size() >= sizeCasheDisk) {
-                System.out.println("key " + key + " overflow");
-            } else {
 
-                for (Map.Entry<K, V> x : over()
-                        ) {
-                    casheDisk.put(x.getKey(), x.getValue());
+            lock.writeLock().lock();
 
+            try {
+                if (casheDisk.size() >= sizeCasheDisk) {
+                    System.out.println("key " + key + " overflow");
+                    System.out.println(casheDisk.size() + "  " + casheMemory.size());
+                } else {
+
+                    for (Entry<K, V> x : over()
+                            ) {
+                        casheDisk.put(x.getKey(), x.getValue());
+
+                    }
+
+                    casheMemory.put(key, val);
+                }} finally{
+                    lock.writeLock().unlock();
                 }
 
-                casheMemory.put(key, val);
+
+
             }
-        }return val;
+        return val;
     }
 
     @Override
@@ -90,7 +115,7 @@ public class CacheImpl<K extends Serializable, V extends Serializable> implement
         return casheMemory.size() + casheDisk.size();
     }
 
-    public List<Map.Entry<K, V>> over() {
+    public  List<Map.Entry<K, V>> over() {
         int diffDisk = sizeCasheDisk - casheDisk.size();
         int shareMemory = sizeCasheMemory / 5;
         if (diffDisk >= shareMemory) {

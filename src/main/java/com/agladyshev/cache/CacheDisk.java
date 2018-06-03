@@ -27,13 +27,13 @@ private int count=0;
         final File dir = dirHashKey(key);
         File toUse;
 
-        lock.writeLock().lock();
+   //    lock.writeLock().lock();
        try {
             if (!dir.exists()) {
                 dir.mkdirs();
                 toUse = fileHashKey(key, val);
                 elementsAdded.incrementAndGet();
-
+//count++;
             } else {
 
                 toUse = lookDir(dir, key);
@@ -41,8 +41,8 @@ private int count=0;
 
                 if (toUse == null) {
                     toUse = fileHashKey(key, val);
-                    elementsAdded.incrementAndGet();
-
+                   elementsAdded.incrementAndGet();
+//count++;
                 }
 
             }
@@ -51,7 +51,7 @@ private int count=0;
         }
 
        finally {
-           lock.writeLock().unlock();
+        //   lock.writeLock().unlock();
        }
 return val;
     }
@@ -118,7 +118,7 @@ V value;
                     toUse.delete();
 
                     elementsAdded.decrementAndGet();
-
+//count--;
                 }
             }
             value=get(key);
@@ -141,8 +141,8 @@ V value;
         }
 
 
-        elementsAdded.set(0);
-
+       elementsAdded.set(0);
+//count=0;
     }
 
 
@@ -150,6 +150,7 @@ V value;
     @Override
     public int size() {
         return elementsAdded.get();
+        //count;
     }
 
     @Override

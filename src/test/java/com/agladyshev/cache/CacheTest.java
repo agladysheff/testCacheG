@@ -25,7 +25,7 @@ public class CacheTest {
 
     @Before
     public  void init(){
-        cache=new CacheImpl<>(StrategyType.G,5,5);
+        cache=new CacheImpl<>(StrategyType.A,1,1);
 
     }
     @After
@@ -73,8 +73,27 @@ public class CacheTest {
     }
 
 
+    @Test
+    public void clearCTest1(){
 
+        cache.put(KEY1,VALUE1);
+        cache.put(KEY2,VALUE2);
+        cache.put("3","v3");
+        cache.put("4","v4");
+        cache.put("5","v4");
+        cache.put("6","v4");
+        cache.put("7","v4");
+        cache.put("8","v4");
+        cache.put("9","v4");
+
+        System.out.print(cache.size());
 
     }
+
+
+
+
+
+}
 
 
