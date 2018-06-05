@@ -16,7 +16,7 @@ public class CacheDiskTest {
 
     @Before
     public  void init(){
-        cache=new CacheDisk<>();
+        cache=new CacheDisk<>("C:/994/");
         cache.clear();
 
     }

@@ -10,17 +10,22 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public class CacheImpl<K extends Serializable, V extends Serializable> implements Cache<K, V> {
-    private final Cache<K, V> cacheMemory = new CacheMemory<>();
-    private final Cache<K, V> cacheDisk = new CacheDisk<>();
-    private StrategyType strategy;
+    private final Cache<K, V> cacheMemory;
+    private final Cache<K, V> cacheDisk ;
     private final int sizeCacheMemory;
     private final int sizeCacheDisk;
     private final ReentrantReadWriteLock  lock = new ReentrantReadWriteLock();
+    private StrategyType strategy;
+    private String directory;
 
-    public CacheImpl(StrategyType strategy, int sizeCacheMemory, int sizeCacheDisk) {
+
+    public CacheImpl(String directory,StrategyType strategy, int sizeCacheMemory, int sizeCacheDisk) {
+       this.directory=directory;
         this.sizeCacheMemory = sizeCacheMemory;
         this.sizeCacheDisk = sizeCacheDisk;
         this.strategy = strategy;
+        this.cacheMemory=new CacheMemory<>();
+        this.cacheDisk=new CacheDisk<>(directory);
     }
 
     @Override

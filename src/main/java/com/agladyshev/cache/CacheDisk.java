@@ -16,8 +16,12 @@ import java.util.stream.Stream;
 
 class CacheDisk<K extends Serializable, V extends Serializable> implements Cache<K, V> {
     private final Serialization<K, V> str = new Serialization<>();
-    private final String DIR = "C:/994/";
+    private  String directory ;
    private int count=0;
+
+    public CacheDisk(String directory) {
+        this.directory = directory;
+    }
 
     @Override
     public V put(K key, V val) {
@@ -84,7 +88,7 @@ class CacheDisk<K extends Serializable, V extends Serializable> implements Cache
     @Override
     public void clear() {
         try {
-            FileUtils.deleteDirectory(new File(DIR));
+            FileUtils.deleteDirectory(new File(directory));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -108,11 +112,11 @@ count=0;
     }
 
     private File dirHashKey(Object key) {
-        return new File(DIR + key.hashCode() + "/");
+        return new File(directory + key.hashCode() + "/");
     }
 
     private File fileHashKey(K key, V val) {
-        return new File(DIR + key.hashCode() + "/" + val.hashCode() + randomString() + ".txt");
+        return new File(directory + key.hashCode() + "/" + val.hashCode() + randomString() + ".txt");
     }
 
     public List<Map.Entry<K, V>> getCLastList(int num) {

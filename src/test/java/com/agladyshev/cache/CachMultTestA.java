@@ -12,16 +12,16 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class CuchCuncTest {
+public class CachMultTestA {
 
 
     private CacheImpl<Integer, Integer> cache;
-    private final Integer SIZE_CACHE_MEMORY=15000;
-    private final Integer SIZE_CACHE_DISK=15000;
+    private final Integer SIZE_CACHE_MEMORY=1500;
+    private final Integer SIZE_CACHE_DISK=1500;
 
     @Before
     public void init() {
-        cache = new CacheImpl<>(StrategyType.A, SIZE_CACHE_MEMORY, SIZE_CACHE_DISK);
+        cache = new CacheImpl<>("C:/994/",StrategyType.A, SIZE_CACHE_MEMORY, SIZE_CACHE_DISK);
     }
 
     @After
@@ -32,21 +32,21 @@ public class CuchCuncTest {
     @Test
     public void multPut() throws InterruptedException {
         Integer n = 10;
-        Integer diff = 4000;
+        Integer diff = 400;
         ExecutorService executorService = Executors.newFixedThreadPool(30);
         IntStream.range(0, n).mapToObj(y -> executorService.submit(() -> IntStream.range(y*diff, y*diff + diff).forEach(x -> cache.put(x, x))))
                 .collect(Collectors.toList()).forEach(z -> {
             while (!z.isDone()) {
             }
         });
-        Assert.assertEquals(SIZE_CACHE_DISK+SIZE_CACHE_MEMORY, cache.size());
+        Assert.assertEquals(Math.min(SIZE_CACHE_DISK+SIZE_CACHE_MEMORY,n*diff), cache.size());
     }
 
     @Test
-    public void multRemuv() throws InterruptedException {
+    public void multRemove() throws InterruptedException {
         Integer n =20;
-        Integer diff = 1000;
-        IntStream.range(0, 20000).forEach(x -> cache.put(x, x));
+        Integer diff = 100;
+        IntStream.range(0, n*diff).forEach(x -> cache.put(x, x));
         ExecutorService executorService = Executors.newFixedThreadPool(5);
         IntStream.range(0, n).mapToObj(y -> executorService.submit(() -> IntStream.range(y*diff, y*diff + diff).forEach(x -> cache.remove(x))))
                 .collect(Collectors.toList()).forEach(z -> {
@@ -59,7 +59,7 @@ public class CuchCuncTest {
     @Test
     public void multPutGet() {
         Integer n = 20;
-        Integer diff = 1500;
+        Integer diff = 150;
         List<List<Integer>> listListResult = IntStream.range(0, n).mapToObj(x -> new ArrayList<Integer>()).collect(Collectors.toList());
         ExecutorService executorService = Executors.newFixedThreadPool(20);
         List<Integer> listExpect = IntStream.range(0, n * diff).mapToObj(x ->

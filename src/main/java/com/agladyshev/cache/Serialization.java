@@ -14,7 +14,7 @@ import java.util.AbstractMap;
             oos.writeObject(value);
             oos.flush();
         } catch (IOException e) {
-            throw new RuntimeException("IO exception during serializ", e);
+            throw new RuntimeException("IO exception during serialize", e);
         }
     }
 
@@ -30,7 +30,7 @@ import java.util.AbstractMap;
             V value = (V) ois.readObject();
             result = new AbstractMap.SimpleEntry<>(key, value);
         } catch (ClassNotFoundException | IOException e) {
-            throw new RuntimeException("IO exception during unserializ", e);
+            throw new RuntimeException("IO exception during unserialize", e);
         }
 
         return result;

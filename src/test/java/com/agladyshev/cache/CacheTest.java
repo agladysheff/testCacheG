@@ -15,10 +15,12 @@ public class CacheTest {
     private final String KEY2="key2";
     private final String VALUE1="value1";
     private final String VALUE2="value2";
+    private final Integer SIZE_CACHE_MEMORY=10;
+    private final Integer SIZE_CACHE_DISK=10;
 
     @Before
     public  void init(){
-        cache=new CacheImpl<>(StrategyType.A,10,10);
+        cache=new CacheImpl<>("C:/994/",StrategyType.A,SIZE_CACHE_MEMORY,SIZE_CACHE_DISK);
 
     }
     @After
@@ -52,17 +54,12 @@ public class CacheTest {
 
     @Test
     public void CTest() {
-        IntStream.range(0, 20).forEach(x -> cache.put("k" + x, "v" + x)
+        IntStream.range(0, SIZE_CACHE_MEMORY + SIZE_CACHE_DISK).forEach(x -> cache.put("k" + x, "v" + x)
         );
-        IntStream.range(0, 10).forEach(x -> Assert.assertTrue(cache.getCacheDisk().containsKey("k" + x)));
-        IntStream.range(11, 20).forEach(x -> Assert.assertTrue(cache.getCacheMemory().containsKey("k" + x)));
+        IntStream.range(0, SIZE_CACHE_MEMORY).forEach(x -> Assert.assertTrue(cache.getCacheDisk().containsKey("k" + x)));
+        IntStream.range(SIZE_CACHE_MEMORY + 1, SIZE_CACHE_MEMORY + SIZE_CACHE_DISK)
+                .forEach(x -> Assert.assertTrue(cache.getCacheMemory().containsKey("k" + x)));
     }
-
-
-
-
-
-
 }
 
 
