@@ -25,7 +25,6 @@ public interface Cache<K, V> extends Map<K, V> {
 
     default Set<Entry<K, V>> entrySet() {
         throw new UnsupportedOperationException();
-
     }
 
     List<Entry<K, V>> getCLastList(int num);

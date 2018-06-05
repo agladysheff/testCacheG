@@ -1,19 +1,12 @@
 package com.agladyshev.cache;
 
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
+
 
 public class CacheTest {
 
@@ -25,16 +18,14 @@ public class CacheTest {
 
     @Before
     public  void init(){
-        cache=new CacheImpl<>(StrategyType.A,1,1);
+        cache=new CacheImpl<>(StrategyType.A,10,10);
 
     }
     @After
     public  void clearCache(){cache.clear();}
 
-
     @Test
     public void addGetRemoveSizeTest(){
-
         cache.put(KEY1,VALUE1);
         Assert.assertEquals(VALUE1, cache.get(KEY1));
         Assert.assertEquals(1,cache.size());
@@ -47,48 +38,26 @@ public class CacheTest {
         cache.remove(KEY2);
         Assert.assertNull(cache.get(KEY2));
         Assert.assertEquals(0,cache.size());
-
     }
 
     @Test
     public void clearCTest(){
-
         cache.put(KEY1,VALUE1);
         cache.put(KEY2,VALUE2);
         cache.clear();
         Assert.assertNull(cache.get(KEY1));
         Assert.assertNull(cache.get(KEY2));
         Assert.assertEquals(0,cache.size());
-
     }
 
     @Test
     public void CTest() {
-        IntStream.range(1, 20).forEach(x -> cache.put("k" + x, "v" + x)
+        IntStream.range(0, 20).forEach(x -> cache.put("k" + x, "v" + x)
         );
-        IntStream.range(1, 5).forEach(x -> Assert.assertTrue(cache.getCasheDisk().containsKey("k" + x)));
-        IntStream.range(6, 10).forEach(x -> Assert.assertTrue(cache.getCasheMemory().containsKey("k" + x)));
-
-
+        IntStream.range(0, 10).forEach(x -> Assert.assertTrue(cache.getCacheDisk().containsKey("k" + x)));
+        IntStream.range(11, 20).forEach(x -> Assert.assertTrue(cache.getCacheMemory().containsKey("k" + x)));
     }
 
-
-    @Test
-    public void clearCTest1(){
-
-        cache.put(KEY1,VALUE1);
-        cache.put(KEY2,VALUE2);
-        cache.put("3","v3");
-        cache.put("4","v4");
-        cache.put("5","v4");
-        cache.put("6","v4");
-        cache.put("7","v4");
-        cache.put("8","v4");
-        cache.put("9","v4");
-
-        System.out.print(cache.size());
-
-    }
 
 
 

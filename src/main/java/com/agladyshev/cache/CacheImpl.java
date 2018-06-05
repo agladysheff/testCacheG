@@ -10,121 +10,109 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public class CacheImpl<K extends Serializable, V extends Serializable> implements Cache<K, V> {
-    private final Cache<K, V> casheMemory = new CacheMemory<>();
-    private final Cache<K, V> casheDisk = new CacheDisk<>();
+    private final Cache<K, V> cacheMemory = new CacheMemory<>();
+    private final Cache<K, V> cacheDisk = new CacheDisk<>();
     private StrategyType strategy;
-    private final int sizeCasheMemory;
-    private final int sizeCasheDisk;
+    private final int sizeCacheMemory;
+    private final int sizeCacheDisk;
     private final ReentrantReadWriteLock  lock = new ReentrantReadWriteLock();
 
-    public CacheImpl(StrategyType strategy, int sizeCasheMemory, int sizeCasheDisk) {
-        this.sizeCasheMemory = sizeCasheMemory;
-        this.sizeCasheDisk = sizeCasheDisk;
-        this.strategy=strategy;
+    public CacheImpl(StrategyType strategy, int sizeCacheMemory, int sizeCacheDisk) {
+        this.sizeCacheMemory = sizeCacheMemory;
+        this.sizeCacheDisk = sizeCacheDisk;
+        this.strategy = strategy;
     }
 
     @Override
-    public   V put(K key, V val) {
-
-
-
-             if (containsKey(key)) {
+    public V put(K key, V val) {
+        if (containsKey(key)) {
             System.out.println("key " + key + " is already contains");
             return val;
         }
-
-        if (casheMemory.size() < sizeCasheMemory) {
-           lock.writeLock().lock();
-
+        if (cacheMemory.size() < sizeCacheMemory) {
+            lock.writeLock().lock();
             try {
-                casheMemory.put(key, val);
+                cacheMemory.put(key, val);
             } finally {
                 lock.writeLock().unlock();
             }
-            System.out.println(casheDisk.size() + "  " + casheMemory.size());
-
         } else {
-
-            lock.writeLock().lock();
-
-            try {
-                if (casheDisk.size() >= sizeCasheDisk) {
-                    System.out.println("key " + key + " overflow");
-                    System.out.println(casheDisk.size() + "  " + casheMemory.size());
-                } else {
-
+            if (cacheDisk.size() >= sizeCacheDisk) {
+                System.out.println("key " + key + " overflow");
+            } else {
+                lock.writeLock().lock();
+                lock.readLock().lock();
+                try {
                     for (Entry<K, V> x : over()
                             ) {
-                        casheDisk.put(x.getKey(), x.getValue());
-
+                        cacheDisk.put(x.getKey(), x.getValue());
                     }
-
-                    casheMemory.put(key, val);
-                }} finally{
+                    cacheMemory.put(key, val);
+                } finally {
                     lock.writeLock().unlock();
+                    lock.readLock().unlock();
                 }
-
-
-
             }
+        }
         return val;
     }
 
     @Override
     public V get(Object key) {
-        V result = casheMemory.get(key);
-        if (result == null) {
-            result = casheDisk.get(key);
-
-            if (strategy == StrategyType.G) {
-                if (result != null) {
-                    List<Map.Entry<K, V>> as = casheMemory.getCLastList(1);
-                    K k = as.get(0).getKey();
-                    V v = as.get(0).getValue();
-
-                    casheDisk.remove(key);
-                    casheMemory.remove(k);
-                    casheMemory.put((K)key, result);
-                    casheDisk.put(k, v);
+        V result;
+        lock.readLock().lock();
+        try {
+            result = cacheMemory.get(key);
+            if (result == null) {
+                result = cacheDisk.get(key);
+                if (strategy == StrategyType.G) {
+                    if (result != null) {
+                        List<Entry<K, V>> as = cacheMemory.getCLastList(1);
+                        K k = as.get(0).getKey();
+                        V v = as.get(0).getValue();
+                        cacheDisk.remove(key);
+                        cacheMemory.remove(k);
+                        cacheMemory.put((K) key, result);
+                        cacheDisk.put(k, v);
+                    }
                 }
             }
+        } finally {
+            lock.readLock().unlock();
         }
-
         return result;
     }
 
     @Override
     public V remove(Object key) {
         V value;
-        value=casheMemory.remove(key);
-        if(value==null)value=casheDisk.remove(key);
+        lock.writeLock().lock();
+        value = cacheMemory.remove(key);
+        if (value == null) value = cacheDisk.remove(key);
+        lock.writeLock().unlock();
         return value;
     }
 
-
-
     @Override
     public void clear() {
-        casheDisk.clear();
-        casheMemory.clear();
-
+        cacheDisk.clear();
+        cacheMemory.clear();
     }
 
     @Override
     public int size() {
-        return casheMemory.size() + casheDisk.size();
+        return cacheMemory.size() + cacheDisk.size();
     }
 
-    public  List<Map.Entry<K, V>> over() {
-        int diffDisk = sizeCasheDisk - casheDisk.size();
-        int shareMemory = sizeCasheMemory / 5;
+    public List<Map.Entry<K, V>> over() {
+        int diffDisk = sizeCacheDisk - cacheDisk.size();
+        int shareMemory = sizeCacheMemory / 5;
         if (diffDisk >= shareMemory) {
-            return casheMemory.getCLastList(shareMemory);
+            return cacheMemory.getCLastList(shareMemory);
         }
         {
-            return casheMemory.getCLastList(diffDisk);
+            return cacheMemory.getCLastList(diffDisk);
         }
-
     }
 
     @Override
@@ -134,21 +122,21 @@ public class CacheImpl<K extends Serializable, V extends Serializable> implement
 
     @Override
     public boolean containsKey(Object key) {
-        if (casheMemory.containsKey(key)) return true;
-        if (casheDisk.containsKey(key)) return true;
+        if (cacheMemory.containsKey(key)) return true;
+        if (cacheDisk.containsKey(key)) return true;
         return false;
     }
 
-     Cache<K, V> getCasheMemory() {
-        return casheMemory;
+    Cache<K, V> getCacheMemory() {
+        return cacheMemory;
     }
 
-     Cache<K, V> getCasheDisk() {
-        return casheDisk;
+    Cache<K, V> getCacheDisk() {
+        return cacheDisk;
     }
 
     @Override
     public boolean isEmpty() {
-        return casheDisk.isEmpty()&&casheMemory.isEmpty();
+        return cacheDisk.isEmpty() && cacheMemory.isEmpty();
     }
 }

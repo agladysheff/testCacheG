@@ -5,102 +5,87 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class CuchCuncTest {
 
 
-    private CacheImpl<Integer,Integer> cache;
-Integer i=0;
+    private CacheImpl<Integer, Integer> cache;
+    private final Integer SIZE_CACHE_MEMORY=15000;
+    private final Integer SIZE_CACHE_DISK=15000;
 
     @Before
-    public  void init(){
-        cache=new CacheImpl<>(StrategyType.A,1500,1000);
-
+    public void init() {
+        cache = new CacheImpl<>(StrategyType.A, SIZE_CACHE_MEMORY, SIZE_CACHE_DISK);
     }
+
     @After
-    public  void clearCache(){cache.clear();}
-
-
-
-    @Test
-    public void mult() throws InterruptedException {
-        Thread thread=new Thread(()->IntStream.range(1,1000).forEach(x->cache.put(x,x)));
-        Thread thread1=new Thread(()->IntStream.range(1000,2000).forEach(x->cache.put(x,x)));
-        Thread thread2=new Thread(()->IntStream.range(2000,3000).forEach(x->cache.put(x,x)));
-        thread.start();
-        thread1.start();
-        thread2.start();
-        thread.join();
-        thread1.join();
-        thread2.join();
-        System.out.println(cache.size());
-
-
-
-
-    }
-    @Test
-    public void multRem() throws InterruptedException {
-       IntStream.range(1,20000).forEach(x->cache.put(x,x));
-        System.out.println(cache.size());
-        Thread thread=new Thread(()->IntStream.range(1,10000).forEach(x->cache.remove(x)));
-        Thread thread1=new Thread(()->IntStream.range(1000,20000).forEach(x->cache.remove(x)));
-        thread.start();
-        thread1.start();
-        thread.join();
-        thread1.join();
-        System.out.println(cache.size());
-
-
+    public void clearCache() {
+        cache.clear();
     }
 
     @Test
-    public void multGet() throws InterruptedException {
-        IntStream.range(1,20000).forEach(x->cache.put(x,x));
-        System.out.println(cache.size());
-        Thread thread=new Thread(()->IntStream.range(1,10000).forEach(x->cache.get(x)));
-        Thread thread1=new Thread(()->IntStream.range(1000,20000).forEach(x->cache.get(x)));
-        thread.start();
-        thread1.start();
-        thread.join();
-        thread1.join();
-        System.out.println(cache.size());
-
-
+    public void multPut() throws InterruptedException {
+        Integer n = 10;
+        Integer diff = 4000;
+        ExecutorService executorService = Executors.newFixedThreadPool(30);
+        IntStream.range(0, n).mapToObj(y -> executorService.submit(() -> IntStream.range(y*diff, y*diff + diff).forEach(x -> cache.put(x, x))))
+                .collect(Collectors.toList()).forEach(z -> {
+            while (!z.isDone()) {
+            }
+        });
+        Assert.assertEquals(SIZE_CACHE_DISK+SIZE_CACHE_MEMORY, cache.size());
     }
-    @Test
-    public  void ddd() {
-
-
-        try {
-            for (i = 0; i <1000 ; i++) {
-
-                Executor executor=Executors.newFixedThreadPool(10);
-
-            Integer future1 = CompletableFuture.runAsync(() -> cache.put(i, i))
-                    .thenApplyAsync(x -> cache.get(2)).get();
-
-            Assert.assertEquals((Integer)i,future1);}
-        } catch (InterruptedException  |ExecutionException  e) {
-            e.printStackTrace();
-        }
-
-    }
-
 
     @Test
-    public void mult1() throws InterruptedException {
-
-        ExecutorService executorService= Executors.newFixedThreadPool(100);
-Future future   =     executorService.submit(()->IntStream.range(1,30001).forEach(x->cache.put(x,x)));
-
-while (!future.isDone())
-{}
-        System.out.println(cache.size());
-        }
-
+    public void multRemuv() throws InterruptedException {
+        Integer n =20;
+        Integer diff = 1000;
+        IntStream.range(0, 20000).forEach(x -> cache.put(x, x));
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        IntStream.range(0, n).mapToObj(y -> executorService.submit(() -> IntStream.range(y*diff, y*diff + diff).forEach(x -> cache.remove(x))))
+                .collect(Collectors.toList()).forEach(z -> {
+            while (!z.isDone()) {
+            }
+        });
+        Assert.assertEquals(0, cache.size());
     }
+
+    @Test
+    public void multPutGet() {
+        Integer n = 20;
+        Integer diff = 1500;
+        List<List<Integer>> listListResult = IntStream.range(0, n).mapToObj(x -> new ArrayList<Integer>()).collect(Collectors.toList());
+        ExecutorService executorService = Executors.newFixedThreadPool(20);
+        List<Integer> listExpect = IntStream.range(0, n * diff).mapToObj(x ->
+                x).collect(Collectors.toList());
+        IntStream.range(0, n).mapToObj(x -> executorService.submit(() -> asyncPutGet(x, diff, listListResult.get(x)))).collect(Collectors.toList()).forEach(x -> {
+            while (!x.isDone()) {
+            }
+        });
+        List<Integer> listResult = listListResult.stream().flatMap(x -> x.stream()).peek(y-> Assert.assertEquals(y,listExpect.get(y))
+            ).collect(Collectors.toList());
+        Assert.assertTrue(listResult.equals(listExpect));
+        Assert.assertEquals(n * diff, cache.size());
+    }
+
+    private void asyncPutGet(Integer z, Integer diff, List<Integer> list) {
+        Integer nStart = z * diff;
+        Integer nStop = nStart + diff;
+        IntStream.range(nStart, nStop).forEach(x -> {
+            try {
+                list.add(CompletableFuture.runAsync(() -> cache.put(x, x))
+                        .thenApplyAsync((y) -> cache.get(x)).get());
+                         } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+}
 
 

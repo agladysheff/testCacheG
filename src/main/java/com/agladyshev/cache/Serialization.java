@@ -3,9 +3,9 @@ package com.agladyshev.cache;
 import java.io.*;
 import java.util.AbstractMap;
 
-public class Serialization<K extends Serializable, V extends Serializable> {
+ class Serialization<K extends Serializable, V extends Serializable> {
 
-    public void serializ(K key, V value, File file) {
+    public void serialize(K key, V value, File file) {
 
 
         try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
@@ -19,7 +19,7 @@ public class Serialization<K extends Serializable, V extends Serializable> {
     }
 
 
-    public AbstractMap.SimpleEntry<K, V> unserializ(File file) {
+    public AbstractMap.SimpleEntry<K, V> unserialize(File file) {
         AbstractMap.SimpleEntry<K, V> result;
 
         try (InputStream is = new BufferedInputStream(new FileInputStream(file));
