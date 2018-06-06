@@ -10,14 +10,12 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
 class CacheDisk<K extends Serializable, V extends Serializable> implements Cache<K, V> {
     private final Serialization<K, V> str = new Serialization<>();
-    private  String directory ;
-   private int count=0;
+    private String directory;
+    private int count = 0;
 
     public CacheDisk(String directory) {
         this.directory = directory;
@@ -49,25 +47,22 @@ class CacheDisk<K extends Serializable, V extends Serializable> implements Cache
             return false;
         }
         File toUse = lookDir(dir, key);
-        if (toUse == null) {
-            return false;
-        }
-        return true;
+     return !(toUse==null);
     }
 
     @Override
-    public  V get (Object key) {
+    public V get(Object key) {
         File dir = dirHashKey(key);
         V result;
         if (!dir.exists()) {
             return null;
         }
-        File toUse  = lookDir(dir, key);
-            if (toUse == null) {
-                return null;
-            }
-            result = str.unserialize(toUse).getValue();
-               return result;
+        File toUse = lookDir(dir, key);
+        if (toUse == null) {
+            return null;
+        }
+        result = str.unserialize(toUse).getValue();
+        return result;
     }
 
     @Override
@@ -92,19 +87,18 @@ class CacheDisk<K extends Serializable, V extends Serializable> implements Cache
         } catch (IOException e) {
             e.printStackTrace();
         }
-count=0;
+        count = 0;
     }
 
     @Override
     public int size() {
         return
-
-        count;
+                count;
     }
 
     @Override
     public boolean isEmpty() {
-        return count==0?true:false;
+        return count == 0;
     }
 
     private String randomString() {
@@ -118,12 +112,9 @@ count=0;
     private File fileHashKey(K key, V val) {
         return new File(directory + key.hashCode() + "/" + val.hashCode() + randomString() + ".txt");
     }
-
     public List<Map.Entry<K, V>> getCLastList(int num) {
         throw new UnsupportedOperationException();
     }
-
-    ;
 
     private File lookDir(File dir, Object key) {
         return Stream.of(dir.listFiles())

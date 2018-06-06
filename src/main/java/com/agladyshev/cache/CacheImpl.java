@@ -5,7 +5,6 @@ package com.agladyshev.cache;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
@@ -48,11 +47,8 @@ public class CacheImpl<K extends Serializable, V extends Serializable> implement
                 lock.writeLock().lock();
                 lock.readLock().lock();
                 try {
-                    for (Entry<K, V> x : over()
-                            ) {
-                        cacheDisk.put(x.getKey(), x.getValue());
-                    }
-                    cacheMemory.put(key, val);
+                     over().forEach(x->cacheDisk.put(x.getKey(), x.getValue()));
+                     cacheMemory.put(key, val);
                 } finally {
                     lock.writeLock().unlock();
                     lock.readLock().unlock();

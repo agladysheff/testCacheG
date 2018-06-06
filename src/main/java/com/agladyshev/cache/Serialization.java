@@ -6,8 +6,6 @@ import java.util.AbstractMap;
  class Serialization<K extends Serializable, V extends Serializable> {
 
     public void serialize(K key, V value, File file) {
-
-
         try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
              ObjectOutputStream oos = new ObjectOutputStream(os);) {
             oos.writeObject(key);
@@ -17,7 +15,6 @@ import java.util.AbstractMap;
             throw new RuntimeException("IO exception during serialize", e);
         }
     }
-
 
     public AbstractMap.SimpleEntry<K, V> unserialize(File file) {
         AbstractMap.SimpleEntry<K, V> result;

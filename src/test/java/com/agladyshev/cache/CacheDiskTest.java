@@ -5,6 +5,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 
 public class CacheDiskTest {
 
@@ -28,17 +30,22 @@ public class CacheDiskTest {
     public void addGetRemoveSizeTest(){
 
         cache.put(KEY1,VALUE1);
-        Assert.assertEquals(VALUE1, cache.get(KEY1));
-        Assert.assertEquals(1,cache.size());
+        assertEquals(VALUE1, cache.get(KEY1));
+        assertEquals(1,cache.size());
+        assertTrue(cache.containsKey(KEY1));
         cache.put(KEY2,VALUE2);
-       Assert.assertEquals(VALUE2, cache.get(KEY2));
-        Assert.assertEquals(2,cache.size());
+        assertEquals(VALUE2, cache.get(KEY2));
+        assertEquals(2,cache.size());
+        assertTrue(cache.containsKey(KEY2));
         cache.remove(KEY1);
-        Assert.assertNull(cache.get(KEY1));
-        Assert.assertEquals(1,cache.size());
+        assertNull(cache.get(KEY1));
+        assertEquals(1,cache.size());
+        assertFalse(cache.containsKey(KEY1));
         cache.remove(KEY2);
-        Assert.assertNull(cache.get(KEY2));
-        Assert.assertEquals(0,cache.size());
+        assertNull(cache.get(KEY2));
+        assertEquals(0,cache.size());
+        assertFalse(cache.containsKey(KEY2));
+        assertTrue(cache.isEmpty());
 
     }
 
@@ -48,9 +55,9 @@ public class CacheDiskTest {
         cache.put(KEY1,VALUE1);
         cache.put(KEY2,VALUE2);
         cache.clear();
-        Assert.assertNull(cache.get(KEY1));
-        Assert.assertNull(cache.get(KEY2));
-        Assert.assertEquals(0,cache.size());
+        assertNull(cache.get(KEY1));
+        assertNull(cache.get(KEY2));
+        assertEquals(0,cache.size());
 
     }
 

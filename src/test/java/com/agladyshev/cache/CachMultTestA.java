@@ -1,16 +1,17 @@
 package com.agladyshev.cache;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static org.junit.Assert.*;
+
 
 public class CachMultTestA {
 
@@ -30,7 +31,7 @@ public class CachMultTestA {
     }
 
     @Test
-    public void multPut() throws InterruptedException {
+    public void multPut()  {
         Integer n = 10;
         Integer diff = 400;
         ExecutorService executorService = Executors.newFixedThreadPool(30);
@@ -39,11 +40,11 @@ public class CachMultTestA {
             while (!z.isDone()) {
             }
         });
-        Assert.assertEquals(Math.min(SIZE_CACHE_DISK+SIZE_CACHE_MEMORY,n*diff), cache.size());
+        assertEquals(Math.min(SIZE_CACHE_DISK+SIZE_CACHE_MEMORY,n*diff), cache.size());
     }
 
     @Test
-    public void multRemove() throws InterruptedException {
+    public void multRemove() {
         Integer n =20;
         Integer diff = 100;
         IntStream.range(0, n*diff).forEach(x -> cache.put(x, x));
@@ -53,7 +54,7 @@ public class CachMultTestA {
             while (!z.isDone()) {
             }
         });
-        Assert.assertEquals(0, cache.size());
+        assertEquals(0, cache.size());
     }
 
     @Test
@@ -68,10 +69,10 @@ public class CachMultTestA {
             while (!x.isDone()) {
             }
         });
-        List<Integer> listResult = listListResult.stream().flatMap(x -> x.stream()).peek(y-> Assert.assertEquals(y,listExpect.get(y))
+        List<Integer> listResult = listListResult.stream().flatMap(x -> x.stream()).peek(y-> assertEquals(y,listExpect.get(y))
             ).collect(Collectors.toList());
-        Assert.assertTrue(listResult.equals(listExpect));
-        Assert.assertEquals(n * diff, cache.size());
+        assertEquals(listExpect,listResult);
+        assertEquals(n * diff, cache.size());
     }
 
     private void asyncPutGet(Integer z, Integer diff, List<Integer> list) {

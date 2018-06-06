@@ -2,10 +2,10 @@ package com.agladyshev.cache;
 
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.stream.IntStream;
+import static org.junit.Assert.*;
 
 
 public class CacheTest {
@@ -29,17 +29,22 @@ public class CacheTest {
     @Test
     public void addGetRemoveSizeTest(){
         cache.put(KEY1,VALUE1);
-        Assert.assertEquals(VALUE1, cache.get(KEY1));
-        Assert.assertEquals(1,cache.size());
+        assertEquals(VALUE1, cache.get(KEY1));
+        assertEquals(1,cache.size());
+        assertTrue(cache.containsKey(KEY1));
         cache.put(KEY2,VALUE2);
-        Assert.assertEquals(VALUE2, cache.get(KEY2));
-        Assert.assertEquals(2,cache.size());
+        assertEquals(VALUE2, cache.get(KEY2));
+        assertEquals(2,cache.size());
+        assertTrue(cache.containsKey(KEY2));
         cache.remove(KEY1);
-        Assert.assertNull(cache.get(KEY1));
-        Assert.assertEquals(1,cache.size());
+        assertNull(cache.get(KEY1));
+        assertEquals(1,cache.size());
+        assertFalse(cache.containsKey(KEY1));
         cache.remove(KEY2);
-        Assert.assertNull(cache.get(KEY2));
-        Assert.assertEquals(0,cache.size());
+        assertNull(cache.get(KEY2));
+        assertEquals(0,cache.size());
+        assertFalse(cache.containsKey(KEY2));
+        assertTrue(cache.isEmpty());
     }
 
     @Test
@@ -47,18 +52,18 @@ public class CacheTest {
         cache.put(KEY1,VALUE1);
         cache.put(KEY2,VALUE2);
         cache.clear();
-        Assert.assertNull(cache.get(KEY1));
-        Assert.assertNull(cache.get(KEY2));
-        Assert.assertEquals(0,cache.size());
+        assertNull(cache.get(KEY1));
+        assertNull(cache.get(KEY2));
+        assertEquals(0,cache.size());
     }
 
     @Test
     public void CTest() {
         IntStream.range(0, SIZE_CACHE_MEMORY + SIZE_CACHE_DISK).forEach(x -> cache.put("k" + x, "v" + x)
         );
-        IntStream.range(0, SIZE_CACHE_MEMORY).forEach(x -> Assert.assertTrue(cache.getCacheDisk().containsKey("k" + x)));
+        IntStream.range(0, SIZE_CACHE_MEMORY).forEach(x -> assertTrue(cache.getCacheDisk().containsKey("k" + x)));
         IntStream.range(SIZE_CACHE_MEMORY + 1, SIZE_CACHE_MEMORY + SIZE_CACHE_DISK)
-                .forEach(x -> Assert.assertTrue(cache.getCacheMemory().containsKey("k" + x)));
+                .forEach(x -> assertTrue(cache.getCacheMemory().containsKey("k" + x)));
     }
 }
 

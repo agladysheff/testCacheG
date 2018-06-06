@@ -2,7 +2,7 @@ package com.agladyshev.cache;
 
 
 import java.util.*;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 
 class CacheMemory<K, V> implements Cache<K, V> {
     private final Map<K, V> storage = new LinkedHashMap<>();
@@ -44,7 +44,7 @@ class CacheMemory<K, V> implements Cache<K, V> {
     }
 
     public boolean isEmpty() {
-        return storage.size()==0?true:false;
+        return storage.isEmpty();
     }
 
     public List<Map.Entry<K, V>> getCLastList(int num) {
