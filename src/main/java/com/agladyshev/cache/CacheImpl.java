@@ -1,7 +1,4 @@
 package com.agladyshev.cache;
-
-
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -10,10 +7,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class CacheImpl<K extends Serializable, V extends Serializable> implements Cache<K, V> {
     private final Cache<K, V> cacheMemory;
-    private final Cache<K, V> cacheDisk ;
+    private  final CacheDisk<K, V> cacheDisk ;
     private final int sizeCacheMemory;
     private final int sizeCacheDisk;
     private final ReentrantReadWriteLock  lock = new ReentrantReadWriteLock();
+
     private StrategyType strategy;
     private String directory;
 
@@ -45,13 +43,13 @@ public class CacheImpl<K extends Serializable, V extends Serializable> implement
                 System.out.println("key " + key + " overflow");
             } else {
                 lock.writeLock().lock();
-                lock.readLock().lock();
+               cacheDisk.getLockDisk().readLock().lock();
                 try {
                      over().forEach(x->cacheDisk.put(x.getKey(), x.getValue()));
                      cacheMemory.put(key, val);
                 } finally {
                     lock.writeLock().unlock();
-                    lock.readLock().unlock();
+                    cacheDisk.getLockDisk().readLock().unlock();
                 }
             }
         }
@@ -68,13 +66,18 @@ public class CacheImpl<K extends Serializable, V extends Serializable> implement
                 result = cacheDisk.get(key);
                 if (strategy == StrategyType.G) {
                     if (result != null) {
-                        List<Entry<K, V>> as = cacheMemory.getCLastList(1);
-                        K k = as.get(0).getKey();
-                        V v = as.get(0).getValue();
-                        cacheDisk.remove(key);
-                        cacheMemory.remove(k);
-                        cacheMemory.put((K) key, result);
-                        cacheDisk.put(k, v);
+                        lock.writeLock().lock();
+                        try {
+                            List<Entry<K, V>> as = cacheMemory.getCLastList(1);
+                            K k = as.get(0).getKey();
+                            V v = as.get(0).getValue();
+                            cacheDisk.remove(key);
+                            cacheMemory.remove(k);
+                            cacheMemory.put((K) key, result);
+                            cacheDisk.put(k, v);
+                        } finally {
+                            lock.writeLock().unlock();
+                        }
                     }
                 }
             }

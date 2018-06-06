@@ -10,10 +10,12 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
 class CacheDisk<K extends Serializable, V extends Serializable> implements Cache<K, V> {
     private final Serialization<K, V> str = new Serialization<>();
+   private  final ReentrantReadWriteLock lockDisk = new ReentrantReadWriteLock();
     private String directory;
     private int count = 0;
 
@@ -54,14 +56,19 @@ class CacheDisk<K extends Serializable, V extends Serializable> implements Cache
     public V get(Object key) {
         File dir = dirHashKey(key);
         V result;
-        if (!dir.exists()) {
-            return null;
+        lockDisk.readLock().lock();
+        try {
+            if (!dir.exists()) {
+                return null;
+            }
+            File toUse = lookDir(dir, key);
+            if (toUse == null) {
+                return null;
+            }
+            result = str.unserialize(toUse).getValue();
+        } finally {
+lockDisk.readLock().unlock();
         }
-        File toUse = lookDir(dir, key);
-        if (toUse == null) {
-            return null;
-        }
-        result = str.unserialize(toUse).getValue();
         return result;
     }
 
@@ -121,6 +128,9 @@ class CacheDisk<K extends Serializable, V extends Serializable> implements Cache
                 .filter(x -> (str.unserialize(x).getKey()).equals(key))
                 .findFirst()
                 .orElse(null);
+    }
+    public ReentrantReadWriteLock getLockDisk() {
+        return lockDisk;
     }
 
 
