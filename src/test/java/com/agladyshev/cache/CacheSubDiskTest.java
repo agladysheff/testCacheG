@@ -6,9 +6,10 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class CacheMemoryTest {
 
-    private CacheMemory<String,String> cache;
+public class CacheSubDiskTest {
+
+    private CacheSubDisk<String,String> cache;
     private final String KEY1="key1";
     private final String KEY2="key2";
     private final String VALUE1="value1";
@@ -16,7 +17,8 @@ public class CacheMemoryTest {
 
     @Before
     public  void init(){
-        cache=new CacheMemory<>();
+        cache=new CacheSubDisk<>("C:/994/");
+        cache.clear();
 
     }
     @After
@@ -58,6 +60,18 @@ public class CacheMemoryTest {
 
     }
 
+    @Test
+    public void clearCTest1(){
 
+        cache.put(KEY1,VALUE1);
+        cache.put(KEY1,VALUE2);
+        System.out.println(cache.size());
+        System.out.println(cache.get(KEY1));
+        cache.clear();
+        assertNull(cache.get(KEY1));
+        assertNull(cache.get(KEY2));
+        assertEquals(0,cache.size());
+
+    }
 
 }

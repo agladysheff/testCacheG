@@ -18,13 +18,13 @@ import static org.junit.Assert.assertEquals;
 public class CachMultTestG {
 
 
-    private CacheImpl<Integer, Integer> cache;
+    private Cache<Integer, Integer> cache;
     private final Integer SIZE_CACHE_MEMORY=1500;
     private final Integer SIZE_CACHE_DISK=1500;
 
     @Before
     public void init() {
-        cache = new CacheImpl<>("C:/994/",StrategyType.G, SIZE_CACHE_MEMORY, SIZE_CACHE_DISK);
+        cache = new Cache<>("C:/994/",StrategyType.G, SIZE_CACHE_MEMORY, SIZE_CACHE_DISK);
     }
 
     @After

@@ -8,9 +8,9 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.*;
 
 
-public class CacheTest {
+public class CacheIntTest {
 
-    private CacheImpl<String,String> cache;
+    private Cache<String,String> cache;
     private final String KEY1="key1";
     private final String KEY2="key2";
     private final String VALUE1="value1";
@@ -20,7 +20,7 @@ public class CacheTest {
 
     @Before
     public  void init(){
-        cache=new CacheImpl<>("C:/994/",StrategyType.A,SIZE_CACHE_MEMORY,SIZE_CACHE_DISK);
+        cache=new Cache<>("C:/994/",StrategyType.A,SIZE_CACHE_MEMORY,SIZE_CACHE_DISK);
 
     }
     @After
@@ -65,6 +65,10 @@ public class CacheTest {
         IntStream.range(SIZE_CACHE_MEMORY + 1, SIZE_CACHE_MEMORY + SIZE_CACHE_DISK)
                 .forEach(x -> assertTrue(cache.getCacheMemory().containsKey("k" + x)));
     }
+
+
+
+
 }
 
 

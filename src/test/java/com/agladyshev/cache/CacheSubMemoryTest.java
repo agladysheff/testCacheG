@@ -1,16 +1,14 @@
 package com.agladyshev.cache;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+public class CacheSubMemoryTest {
 
-public class CacheDiskTest {
-
-    private CacheDisk<String,String> cache;
+    private CacheSubMemory<String,String> cache;
     private final String KEY1="key1";
     private final String KEY2="key2";
     private final String VALUE1="value1";
@@ -18,8 +16,7 @@ public class CacheDiskTest {
 
     @Before
     public  void init(){
-        cache=new CacheDisk<>("C:/994/");
-        cache.clear();
+        cache=new CacheSubMemory<>();
 
     }
     @After
@@ -60,5 +57,7 @@ public class CacheDiskTest {
         assertEquals(0,cache.size());
 
     }
+
+
 
 }

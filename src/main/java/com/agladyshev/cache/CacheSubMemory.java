@@ -2,16 +2,27 @@ package com.agladyshev.cache;
 
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
-class CacheMemory<K, V> implements Cache<K, V> {
+class CacheSubMemory<K, V> implements CacheSub<K, V> {
     private final Map<K, V> storage = new LinkedHashMap<>();
+    private final ReentrantReadWriteLock lockMemory = new ReentrantReadWriteLock();
 
     @Override
     public  V put(K key, V val) {
         V result;
+        try {
             result = storage.put(key, val);
+        } finally {
+        }
         return result;
+    }
+
+    @Override
+    public V putSame(K key, V val) {
+        storage.put(key,val);
+        return val;
     }
 
     @Override

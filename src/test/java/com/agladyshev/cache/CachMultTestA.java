@@ -16,13 +16,13 @@ import static org.junit.Assert.*;
 public class CachMultTestA {
 
 
-    private CacheImpl<Integer, Integer> cache;
-    private final Integer SIZE_CACHE_MEMORY=1500;
-    private final Integer SIZE_CACHE_DISK=1500;
+    private Cache<Integer, Integer> cache;
+    private final Integer SIZE_CACHE_MEMORY=15000;
+    private final Integer SIZE_CACHE_DISK=15000;
 
     @Before
     public void init() {
-        cache = new CacheImpl<>("C:/994/",StrategyType.A, SIZE_CACHE_MEMORY, SIZE_CACHE_DISK);
+        cache = new Cache<>("C:/994/",StrategyType.A, SIZE_CACHE_MEMORY, SIZE_CACHE_DISK);
     }
 
     @After
@@ -33,8 +33,13 @@ public class CachMultTestA {
     @Test
     public void multPut()  {
         Integer n = 10;
-        Integer diff = 400;
+        Integer diff = 4000;
         ExecutorService executorService = Executors.newFixedThreadPool(30);
+        IntStream.range(0, n).mapToObj(y -> executorService.submit(() -> IntStream.range(y*diff, y*diff + diff).forEach(x -> cache.put(x, x))))
+                .collect(Collectors.toList()).forEach(z -> {
+            while (!z.isDone()) {
+            }
+        });
         IntStream.range(0, n).mapToObj(y -> executorService.submit(() -> IntStream.range(y*diff, y*diff + diff).forEach(x -> cache.put(x, x))))
                 .collect(Collectors.toList()).forEach(z -> {
             while (!z.isDone()) {
@@ -70,6 +75,7 @@ public class CachMultTestA {
             }
         });
         List<Integer> listResult = listListResult.stream().flatMap(x -> x.stream()).peek(y-> assertEquals(y,listExpect.get(y))
+
             ).collect(Collectors.toList());
         assertEquals(listExpect,listResult);
         assertEquals(n * diff, cache.size());
