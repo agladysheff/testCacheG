@@ -10,33 +10,23 @@ class CacheSubMemory<K, V> implements CacheSub<K, V> {
     private final ReentrantReadWriteLock lockMemory = new ReentrantReadWriteLock();
 
     @Override
-    public  V put(K key, V val) {
-        V result;
-        try {
-            result = storage.put(key, val);
-        } finally {
-        }
-        return result;
+    public V put(K key, V val) {
+        return storage.put(key, val);
     }
 
     @Override
     public V putSame(K key, V val) {
-        storage.put(key,val);
-        return val;
-    }
+        return storage.put(key,val);
+           }
 
     @Override
-    public  V get (Object key) {
-        V value;
-                value = storage.get(key);
-              return value;
+    public V get(Object key) {
+        return storage.get(key);
     }
 
     @Override
     public V remove(Object key) {
-        V value;
-            value=storage.remove(key);
-        return value;
+        return storage.remove(key);
     }
 
     @Override

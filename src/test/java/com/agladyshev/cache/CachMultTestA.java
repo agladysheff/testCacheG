@@ -3,7 +3,6 @@ package com.agladyshev.cache;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -17,8 +16,8 @@ public class CachMultTestA {
 
 
     private Cache<Integer, Integer> cache;
-    private final Integer SIZE_CACHE_MEMORY=15000;
-    private final Integer SIZE_CACHE_DISK=15000;
+    private final Integer SIZE_CACHE_MEMORY=1500;
+    private final Integer SIZE_CACHE_DISK=1500;
 
     @Before
     public void init() {
@@ -33,7 +32,7 @@ public class CachMultTestA {
     @Test
     public void multPut()  {
         Integer n = 10;
-        Integer diff = 4000;
+        Integer diff = 400;
         ExecutorService executorService = Executors.newFixedThreadPool(30);
         IntStream.range(0, n).mapToObj(y -> executorService.submit(() -> IntStream.range(y*diff, y*diff + diff).forEach(x -> cache.put(x, x))))
                 .collect(Collectors.toList()).forEach(z -> {

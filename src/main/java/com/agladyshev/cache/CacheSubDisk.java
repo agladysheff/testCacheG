@@ -35,7 +35,6 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
     @Override
     public V putSame(K key, V val) {
                   str.serialize(key, val, getFileFromDir(key));
-
         return val;
     }
 
@@ -46,17 +45,17 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
 
     @Override
     public V get(Object key) {
-        V result = null;
-        final File toUse;
         lockDisk.readLock().lock();
         try {
+            V result = null;
+            final File toUse;
             if (dirHashKey(key).exists() && (toUse = getFileFromDir(key)) != null) {
-                result = str.unserialize(toUse).getValue();
+                result= str.unserialize(toUse).getValue();
             }
+            return result;
         } finally {
             lockDisk.readLock().unlock();
         }
-        return result;
     }
 
     @Override

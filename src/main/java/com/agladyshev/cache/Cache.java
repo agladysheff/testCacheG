@@ -3,7 +3,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.AbstractMap.SimpleEntry;
+
 
 
 public class Cache<K extends Serializable, V extends Serializable>  {
@@ -12,6 +12,7 @@ public class Cache<K extends Serializable, V extends Serializable>  {
     private final int sizeCacheMemory;
     private final int sizeCacheDisk;
     private final ReentrantReadWriteLock  lock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock  lock1 = new ReentrantReadWriteLock();
     private StrategyType strategy;
     private final String directory;
 
@@ -47,58 +48,57 @@ public class Cache<K extends Serializable, V extends Serializable>  {
                 System.out.println("key " + key + " overflow");
             } else {
                 lock.writeLock().lock();
-              cacheDisk.getLockDisk().readLock().lock();
-                try {
+                                         try {
                      over().forEach(x->cacheDisk.put(x.getKey(), x.getValue()));
                      cacheMemory.put(key, val);
                 } finally {
+
                     lock.writeLock().unlock();
-                    cacheDisk.getLockDisk().readLock().unlock();
                 }
             }
         }
         return val;
     }
 
-
     public V get(Object key) {
-        V result;
         lock.readLock().lock();
         try {
-            result = cacheMemory.get(key);
-            if (result == null) {
-                result = cacheDisk.get(key);
-                if (strategy == StrategyType.G) {
-                    if (result != null) {
-                        lock.writeLock().lock();
-                        try {
-                            List<Map.Entry<K, V>> as = cacheMemory.getCLastList(1);
-                            K k = as.get(0).getKey();
-                            V v = as.get(0).getValue();
-                            cacheDisk.remove(key);
-                            cacheMemory.remove(k);
-                            cacheMemory.put((K) key, result);
-                            cacheDisk.put(k, v);
-                        } finally {
-                            lock.writeLock().unlock();
-                        }
-                    }
-                }
-            }
+            V result = cacheMemory.get(key);
+           if (result == null) {
+               result = cacheDisk.get(key);
+               if (strategy == StrategyType.G) {
+                   if (result != null) {
+                       lock1.writeLock().lock();
+                       try {
+                           List<Map.Entry<K, V>> as = cacheMemory.getCLastList(1);
+                           K k = as.get(0).getKey();
+                           V v = as.get(0).getValue();
+                           cacheDisk.remove(key);
+                           cacheMemory.remove(k);
+                           cacheMemory.put((K) key, result);
+                           cacheDisk.put(k, v);
+                       } finally {
+                           lock1.writeLock().unlock();
+                       }
+                   }
+               }
+           }
+            return result;
         } finally {
             lock.readLock().unlock();
         }
-        return result;
     }
 
 
     public V remove(Object key) {
-        V value;
-        lock.writeLock().lock();
-        value = cacheMemory.remove(key);
-        if (value == null) value = cacheDisk.remove(key);
-        lock.writeLock().unlock();
-        return value;
+       lock.writeLock().lock();
+        try {
+            V value = cacheMemory.remove(key);
+            if (value == null) value = cacheDisk.remove(key);
+            return value;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
 
@@ -109,14 +109,12 @@ public class Cache<K extends Serializable, V extends Serializable>  {
 
 
     public int size() {
-        final int result;
         lock.readLock().lock();
         try {
-            result= cacheMemory.size() + cacheDisk.size();
+            return cacheMemory.size() + cacheDisk.size();
         } finally {
             lock.readLock().unlock();
         }
-        return result;
     }
 
     public List<Map.Entry<K, V>> over() {
