@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Cache<K extends Serializable, V extends Serializable>  {
     private final CacheSub<K, V> cacheMemory;
-    private  final CacheSub<K, V> cacheDisk ;
+    private final CacheSub<K, V> cacheDisk ;
     private final int sizeCacheMemory;
     private final int sizeCacheDisk;
     private final ReentrantReadWriteLock  lock = new ReentrantReadWriteLock();
@@ -136,9 +136,7 @@ public class Cache<K extends Serializable, V extends Serializable>  {
 
 
     public boolean containsKey(Object key) {
-        if (cacheMemory.containsKey(key)) return true;
-        if (cacheDisk.containsKey(key)) return true;
-        return false;
+        return cacheMemory.containsKey(key) || cacheDisk.containsKey(key);
     }
 
 

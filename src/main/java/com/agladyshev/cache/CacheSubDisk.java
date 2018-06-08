@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 class CacheSubDisk<K extends Serializable, V extends Serializable> implements CacheSub<K, V> {
     private final Serialization<K, V> str = new Serialization<>();
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    private String directory;
+    private final String directory;
     private int count = 0;
 
     public CacheSubDisk(String directory) {

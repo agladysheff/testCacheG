@@ -18,7 +18,7 @@ dependencies {
     compile group:  'commons-io', name: 'commons-io', version: '2.6'
 }
 jar {
-    baseName = 'testCacheG'
+    baseName = 'testCacheG+'
 }
 
 jacoco {
