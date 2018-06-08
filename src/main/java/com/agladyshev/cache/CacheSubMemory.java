@@ -7,17 +7,17 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class CacheSubMemory<K, V> implements CacheSub<K, V> {
     private final Map<K, V> storage = new LinkedHashMap<>();
-    private final ReentrantReadWriteLock lockMemory = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     @Override
     public V put(K key, V val) {
-        return storage.put(key, val);
+ lock.writeLock().lock();
+        try {
+            return storage.put(key, val);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
-
-    @Override
-    public V putSame(K key, V val) {
-        return storage.put(key,val);
-           }
 
     @Override
     public V get(Object key) {

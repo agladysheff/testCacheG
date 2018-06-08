@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 class CacheSubDisk<K extends Serializable, V extends Serializable> implements CacheSub<K, V> {
     private final Serialization<K, V> str = new Serialization<>();
-    private final ReentrantReadWriteLock lockDisk = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private String directory;
     private int count = 0;
 
@@ -33,8 +33,13 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
     }
 
     @Override
-    public V putSame(K key, V val) {
-                  str.serialize(key, val, getFileFromDir(key));
+    public V replace (K key, V val) {
+        lock.writeLock().lock();
+        try {
+            str.serialize(key, val, getFileFromDir(key));
+        } finally {
+            lock.writeLock().unlock();
+        }
         return val;
     }
 
@@ -45,7 +50,7 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
 
     @Override
     public V get(Object key) {
-        lockDisk.readLock().lock();
+        lock.readLock().lock();
         try {
             V result = null;
             final File toUse;
@@ -54,7 +59,7 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
             }
             return result;
         } finally {
-            lockDisk.readLock().unlock();
+            lock.readLock().unlock();
         }
     }
 
@@ -114,9 +119,6 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
     }
 
 
-     ReentrantReadWriteLock getLockDisk() {
-        return lockDisk;
-    }
 
 
 }

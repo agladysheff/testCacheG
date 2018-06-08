@@ -2,16 +2,19 @@ package com.agladyshev.cache;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 
 public class Cache<K extends Serializable, V extends Serializable>  {
     private final CacheSub<K, V> cacheMemory;
-    private  final CacheSubDisk<K, V> cacheDisk ;
+    private  final CacheSub<K, V> cacheDisk ;
     private final int sizeCacheMemory;
     private final int sizeCacheDisk;
     private final ReentrantReadWriteLock  lock = new ReentrantReadWriteLock();
+    private final Lock lockW =lock.writeLock();
+    private final Lock lockR =lock.readLock();
     private final ReentrantReadWriteLock  lock1 = new ReentrantReadWriteLock();
     private StrategyType strategy;
     private final String directory;
@@ -27,41 +30,39 @@ public class Cache<K extends Serializable, V extends Serializable>  {
     }
 
 
-    public  V put(K key, V val) {
+    public V put(K key, V val) {
         if (cacheMemory.containsKey(key)) {
-            cacheMemory.putSame(key, val);
+            cacheMemory.put(key, val);
             return val;
         }
         if (cacheDisk.containsKey(key)) {
-            cacheDisk.putSame(key, val);
+            cacheDisk.replace(key, val);
             return val;
         }
         if (cacheMemory.size() < sizeCacheMemory) {
-           lock.writeLock().lock();
+            lockW.lock();
             try {
                 cacheMemory.put(key, val);
             } finally {
-                lock.writeLock().unlock();
+                lockW.unlock();
             }
         } else {
             if (cacheDisk.size() >= sizeCacheDisk) {
                 System.out.println("key " + key + " overflow");
             } else {
-                lock.writeLock().lock();
-                                         try {
-                     over().forEach(x->cacheDisk.put(x.getKey(), x.getValue()));
-                     cacheMemory.put(key, val);
+                lockW.lock();
+                try {
+                    over().forEach(x -> cacheDisk.put(x.getKey(), x.getValue()));
+                    cacheMemory.put(key, val);
                 } finally {
-
-                    lock.writeLock().unlock();
+                    lockW.unlock();
                 }
             }
         }
         return val;
     }
-
     public V get(Object key) {
-        lock.readLock().lock();
+        lockR.lock();
         try {
             V result = cacheMemory.get(key);
            if (result == null) {
@@ -85,35 +86,40 @@ public class Cache<K extends Serializable, V extends Serializable>  {
            }
             return result;
         } finally {
-            lock.readLock().unlock();
+            lockR.unlock();
         }
     }
 
 
     public V remove(Object key) {
-       lock.writeLock().lock();
+       lockW.lock();
         try {
             V value = cacheMemory.remove(key);
             if (value == null) value = cacheDisk.remove(key);
             return value;
         } finally {
-            lock.writeLock().unlock();
+            lockW.unlock();
         }
     }
 
 
     public void clear() {
-        cacheDisk.clear();
-        cacheMemory.clear();
+       lockW.lock();
+        try {
+            cacheDisk.clear();
+            cacheMemory.clear();
+        } finally {
+            lockW.unlock();
+        }
     }
 
 
     public int size() {
-        lock.readLock().lock();
+        lockR.lock();
         try {
             return cacheMemory.size() + cacheDisk.size();
         } finally {
-            lock.readLock().unlock();
+            lockR.unlock();
         }
     }
 

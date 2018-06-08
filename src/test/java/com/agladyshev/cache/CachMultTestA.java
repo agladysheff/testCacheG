@@ -39,12 +39,14 @@ public class CachMultTestA {
             while (!z.isDone()) {
             }
         });
-        IntStream.range(0, n).mapToObj(y -> executorService.submit(() -> IntStream.range(y*diff, y*diff + diff).forEach(x -> cache.put(x, x))))
+        assertEquals(Math.min(SIZE_CACHE_DISK+SIZE_CACHE_MEMORY,n*diff), cache.size());
+        IntStream.range(0, n).mapToObj(y -> executorService.submit(() -> IntStream.range(y*diff, y*diff + diff).forEach(x -> cache.put(x, 2*x))))
                 .collect(Collectors.toList()).forEach(z -> {
             while (!z.isDone()) {
             }
         });
         assertEquals(Math.min(SIZE_CACHE_DISK+SIZE_CACHE_MEMORY,n*diff), cache.size());
+
     }
 
     @Test

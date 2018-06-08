@@ -29,7 +29,6 @@ public interface CacheSub<K, V> extends Map<K, V> {
 
     List<Entry<K, V>> getCLastList(int num);
 
-    V putSame(K key, V val);
 
 
 }

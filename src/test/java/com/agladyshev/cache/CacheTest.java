@@ -57,25 +57,6 @@ public class CacheTest {
         assertEquals(0,cache.size());
     }
 
-    @Test
-    public void CTest() {
-        IntStream.range(0, SIZE_CACHE_MEMORY + SIZE_CACHE_DISK).forEach(x -> cache.put("k" + x, "v" + x)
-        );
-
-      //  IntStream.range(0, SIZE_CACHE_MEMORY).forEach(x -> assertTrue(cache.getCacheDisk().containsKey("k" + x)));
-   //     IntStream.range(SIZE_CACHE_MEMORY + 1, SIZE_CACHE_MEMORY + SIZE_CACHE_DISK)
-   //             .forEach(x -> assertTrue(cache.getCacheMemory().containsKey("k" + x)));
-       IntStream.range(1,20).forEach(x-> System.out.println(cache.getCacheMemory().containsKey("k"+x)+"  "+ x));
-
-        System.out.println("k"+1);
-        cache.get("k"+2);
-        System.out.println("add");
-        IntStream.range(1,20).forEach(x-> System.out.println(cache.getCacheMemory().containsKey("k"+x)+"  "+ x));
-    }
-
-
-
-
-}
+   }
 
 
