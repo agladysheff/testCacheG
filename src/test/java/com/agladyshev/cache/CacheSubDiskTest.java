@@ -18,11 +18,22 @@ public class CacheSubDiskTest {
     @Before
     public  void init(){
         cache=new CacheSubDisk<>("C:/994/");
-        cache.clear();
+cache.clear();
 
     }
     @After
-    public  void clearCache(){cache.clear();}
+    public  void clearCache(){
+
+        try {
+            cache.
+
+                clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
 
 
     @Test
@@ -36,14 +47,18 @@ public class CacheSubDiskTest {
         assertEquals(VALUE2, cache.get(KEY2));
         assertEquals(2,cache.size());
         assertTrue(cache.containsKey(KEY2));
+        assertTrue(cache.containsValue(VALUE1));
+        assertTrue(cache.containsValue(VALUE2));
         cache.remove(KEY1);
         assertNull(cache.get(KEY1));
         assertEquals(1,cache.size());
         assertFalse(cache.containsKey(KEY1));
+        assertFalse(cache.containsValue(VALUE1));
         cache.remove(KEY2);
         assertNull(cache.get(KEY2));
         assertEquals(0,cache.size());
         assertFalse(cache.containsKey(KEY2));
+        assertFalse(cache.containsValue(VALUE2));
         assertTrue(cache.isEmpty());
 
     }
@@ -53,6 +68,7 @@ public class CacheSubDiskTest {
 
         cache.put(KEY1,VALUE1);
         cache.put(KEY2,VALUE2);
+        System.out.println(cache.containsValue("sdfdsf"));
         cache.clear();
         assertNull(cache.get(KEY1));
         assertNull(cache.get(KEY2));

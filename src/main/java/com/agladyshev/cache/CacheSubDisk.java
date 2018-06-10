@@ -7,8 +7,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
@@ -45,27 +47,32 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
 
     @Override
     public boolean containsKey(Object key) {
-       lock.readLock().lock();
+       boolean result;
+        lock.readLock().lock();
         try {
-            return dirHashKey(key).exists() && (getFileFromDir(key) != null);
+            result= dirHashKey(key).exists() && (getFileFromDir(key) != null);
         } finally {
             lock.readLock().unlock();
         }
+        return result;
     }
 
     @Override
     public V get(Object key) {
+
+        V result = null;
         lock.readLock().lock();
         try {
-            V result = null;
+
             final File toUse;
             if (dirHashKey(key).exists() && (toUse = getFileFromDir(key)) != null) {
                 result= str.unserialize(toUse).getValue();
             }
-            return result;
+
         } finally {
             lock.readLock().unlock();
         }
+        return result;
     }
 
     @Override
@@ -90,13 +97,8 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
 
     @Override
     public int size() {
-        lock.readLock().lock();
-        try {
-            return
-                    count;
-        } finally {
-            lock.readLock().unlock();
-        }
+                  return   count;
+
     }
 
     @Override
@@ -128,6 +130,17 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
                 .orElse(null);
     }
 
+    @Override
+    public boolean containsValue(Object value) {
+        Boolean result = false;
+       final File [] folders=new File(directory).listFiles();
+       if (folders!=null)
+        result = Arrays.stream(folders)
+                .map(x -> Arrays.asList(Objects.requireNonNull(x.listFiles())))
+                .flatMap(Collection::stream)
+                .anyMatch(z -> str.unserialize(z).getValue().equals(value));
+        return result;
+    }
 
 
 

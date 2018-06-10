@@ -15,7 +15,6 @@ public class Cache<K extends Serializable, V extends Serializable>  {
     private final ReentrantReadWriteLock  lock = new ReentrantReadWriteLock();
     private final Lock lockW =lock.writeLock();
     private final Lock lockR =lock.readLock();
-    private final ReentrantReadWriteLock  lock1 = new ReentrantReadWriteLock();
     private StrategyType strategy;
     private final String directory;
 
@@ -38,26 +37,23 @@ public class Cache<K extends Serializable, V extends Serializable>  {
         if (cacheDisk.containsKey(key)) {
             cacheDisk.replace(key, val);
             return val;
+
         }
-        if (cacheMemory.size() < sizeCacheMemory) {
-            lockW.lock();
-            try {
+        lockW.lock();
+        try {
+            if (cacheMemory.size() < sizeCacheMemory) {
                 cacheMemory.put(key, val);
-            } finally {
-                lockW.unlock();
-            }
-        } else {
-            if (cacheDisk.size() >= sizeCacheDisk) {
-                System.out.println("key " + key + " overflow");
-            } else {
-                lockW.lock();
-                try {
+                       } else {
+                if (cacheDisk.size() >= sizeCacheDisk) {
+                    System.out.println("key " + key + " overflow");
+                } else {
+
                     over().forEach(x -> cacheDisk.put(x.getKey(), x.getValue()));
                     cacheMemory.put(key, val);
-                } finally {
-                    lockW.unlock();
                 }
             }
+        } finally {
+            lockW.unlock();
         }
         return val;
     }
@@ -97,14 +93,16 @@ public class Cache<K extends Serializable, V extends Serializable>  {
     }
 
     public V remove(Object key) {
+      V value;
        lockW.lock();
         try {
-            V value = cacheMemory.remove(key);
+             value = cacheMemory.remove(key);
             if (value == null) value = cacheDisk.remove(key);
-            return value;
+
         } finally {
             lockW.unlock();
         }
+        return value;
     }
 
 
@@ -120,12 +118,27 @@ public class Cache<K extends Serializable, V extends Serializable>  {
 
 
     public int size() {
+
+        int result;
         lockR.lock();
         try {
-            return cacheMemory.size() + cacheDisk.size();
+            result= cacheMemory.size() + cacheDisk.size();
         } finally {
             lockR.unlock();
         }
+        return result;
+    }
+
+
+    public boolean containsValue(Object value) {
+        boolean result;
+        lockR.lock();
+        try {
+            result= cacheMemory.containsValue(value)||cacheDisk.containsValue(value);
+        } finally {
+            lockR.unlock();
+        }
+        return result;
     }
 
     public List<Map.Entry<K, V>> over() {
@@ -141,7 +154,14 @@ public class Cache<K extends Serializable, V extends Serializable>  {
 
 
     public boolean containsKey(Object key) {
-        return cacheMemory.containsKey(key) || cacheDisk.containsKey(key);
+        boolean result;
+        lockR.lock();
+        try {
+            result= cacheMemory.containsKey(key) || cacheDisk.containsKey(key);
+        } finally {
+            lockR.unlock();
+        }
+        return result;
     }
 
 
