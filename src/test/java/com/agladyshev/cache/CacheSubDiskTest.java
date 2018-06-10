@@ -60,18 +60,5 @@ public class CacheSubDiskTest {
 
     }
 
-    @Test
-    public void clearCTest1(){
-
-        cache.put(KEY1,VALUE1);
-        cache.put(KEY1,VALUE2);
-        System.out.println(cache.size());
-        System.out.println(cache.get(KEY1));
-        cache.clear();
-        assertNull(cache.get(KEY1));
-        assertNull(cache.get(KEY2));
-        assertEquals(0,cache.size());
-
-    }
 
 }

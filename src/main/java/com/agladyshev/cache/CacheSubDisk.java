@@ -45,7 +45,12 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
 
     @Override
     public boolean containsKey(Object key) {
-        return dirHashKey(key).exists() && (getFileFromDir(key) != null);
+       lock.readLock().lock();
+        try {
+            return dirHashKey(key).exists() && (getFileFromDir(key) != null);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
@@ -85,8 +90,13 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
 
     @Override
     public int size() {
-        return
-                count;
+        lock.readLock().lock();
+        try {
+            return
+                    count;
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override

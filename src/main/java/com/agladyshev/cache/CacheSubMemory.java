@@ -21,7 +21,12 @@ class CacheSubMemory<K, V> implements CacheSub<K, V> {
 
     @Override
     public V get(Object key) {
-        return storage.get(key);
+        lock.readLock().lock();
+        try {
+            return storage.get(key);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
@@ -36,12 +41,22 @@ class CacheSubMemory<K, V> implements CacheSub<K, V> {
 
     @Override
     public int size() {
-        return storage.size();
+        lock.readLock().lock();
+        try {
+            return storage.size();
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public boolean containsKey(Object key) {
-      return storage.containsKey(key);
+        lock.readLock().lock();
+        try {
+            return storage.containsKey(key);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public boolean isEmpty() {

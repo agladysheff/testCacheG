@@ -61,35 +61,40 @@ public class Cache<K extends Serializable, V extends Serializable>  {
         }
         return val;
     }
+
     public V get(Object key) {
+        V result;
+        V resultD = null;
         lockR.lock();
         try {
-            V result = cacheMemory.get(key);
-           if (result == null) {
-               result = cacheDisk.get(key);
-               if (strategy == StrategyType.G) {
-                   if (result != null) {
-                       lock1.writeLock().lock();
-                       try {
-                           List<Map.Entry<K, V>> as = cacheMemory.getCLastList(1);
-                           K k = as.get(0).getKey();
-                           V v = as.get(0).getValue();
-                           cacheDisk.remove(key);
-                           cacheMemory.remove(k);
-                           cacheMemory.put((K) key, result);
-                           cacheDisk.put(k, v);
-                       } finally {
-                           lock1.writeLock().unlock();
-                       }
-                   }
-               }
-           }
-            return result;
+            result = cacheMemory.get(key);
+            if (result == null) {
+                resultD = cacheDisk.get(key);
+                result = resultD;
+            }
         } finally {
             lockR.unlock();
         }
-    }
+        if (strategy == StrategyType.G) {
+            if (resultD != null) {
+                lock.writeLock().lock();
+                try {
+                    List<Map.Entry<K, V>> as = cacheMemory.getCLastList(1);
+                    K k = as.get(0).getKey();
+                    V v = as.get(0).getValue();
+                    cacheDisk.remove(key);
+                    cacheMemory.remove(k);
+                    cacheMemory.put((K) key, result);
+                    cacheDisk.put(k, v);
+                } finally {
+                    lock.writeLock().unlock();
+                }
+            }
+        }
 
+        return result;
+
+    }
 
     public V remove(Object key) {
        lockW.lock();
