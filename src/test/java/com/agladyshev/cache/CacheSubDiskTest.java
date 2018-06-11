@@ -68,7 +68,6 @@ cache.clear();
 
         cache.put(KEY1,VALUE1);
         cache.put(KEY2,VALUE2);
-        System.out.println(cache.containsValue("sdfdsf"));
         cache.clear();
         assertNull(cache.get(KEY1));
         assertNull(cache.get(KEY2));

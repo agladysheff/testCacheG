@@ -28,7 +28,6 @@ public class Cache<K extends Serializable, V extends Serializable>  {
         this.cacheDisk=new CacheSubDisk<>(directory);
     }
 
-
     public V put(K key, V val) {
         if (cacheMemory.containsKey(key)) {
             cacheMemory.put(key, val);
@@ -37,7 +36,6 @@ public class Cache<K extends Serializable, V extends Serializable>  {
         if (cacheDisk.containsKey(key)) {
             cacheDisk.replace(key, val);
             return val;
-
         }
         lockW.lock();
         try {
@@ -47,7 +45,6 @@ public class Cache<K extends Serializable, V extends Serializable>  {
                 if (cacheDisk.size() >= sizeCacheDisk) {
                     System.out.println("key " + key + " overflow");
                 } else {
-
                     over().forEach(x -> cacheDisk.put(x.getKey(), x.getValue()));
                     cacheMemory.put(key, val);
                 }
@@ -75,21 +72,19 @@ public class Cache<K extends Serializable, V extends Serializable>  {
             if (resultD != null) {
                 lock.writeLock().lock();
                 try {
-                    List<Map.Entry<K, V>> as = cacheMemory.getCLastList(1);
-                    K k = as.get(0).getKey();
-                    V v = as.get(0).getValue();
+                    Map.Entry<K,V> as= cacheMemory.entrySet().iterator().next();
+                    K k = as.getKey();
+                    V v = as.getValue();
                     cacheDisk.remove(key);
                     cacheMemory.remove(k);
-                    cacheMemory.put((K) key, result);
+                    cacheMemory.put((K)key, result);
                     cacheDisk.put(k, v);
                 } finally {
                     lock.writeLock().unlock();
                 }
             }
         }
-
         return result;
-
     }
 
     public V remove(Object key) {
@@ -116,9 +111,7 @@ public class Cache<K extends Serializable, V extends Serializable>  {
         }
     }
 
-
     public int size() {
-
         int result;
         lockR.lock();
         try {
@@ -128,7 +121,6 @@ public class Cache<K extends Serializable, V extends Serializable>  {
         }
         return result;
     }
-
 
     public boolean containsValue(Object value) {
         boolean result;
@@ -142,16 +134,16 @@ public class Cache<K extends Serializable, V extends Serializable>  {
     }
 
     public List<Map.Entry<K, V>> over() {
+        List<Map.Entry<K, V>> result;
         int diffDisk = sizeCacheDisk - cacheDisk.size();
         int shareMemory = sizeCacheMemory / 5;
         if (diffDisk >= shareMemory) {
-            return cacheMemory.getCLastList(shareMemory);
+            result = cacheMemory.getCLastList(shareMemory);
+        } else {
+            result = cacheMemory.getCLastList(diffDisk);
         }
-        {
-            return cacheMemory.getCLastList(diffDisk);
-        }
+        return result;
     }
-
 
     public boolean containsKey(Object key) {
         boolean result;
@@ -163,7 +155,6 @@ public class Cache<K extends Serializable, V extends Serializable>  {
         }
         return result;
     }
-
 
      CacheSub<K, V> getCacheDisk() {
         return cacheDisk;

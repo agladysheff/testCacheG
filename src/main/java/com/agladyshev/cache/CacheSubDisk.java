@@ -7,9 +7,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
@@ -59,16 +56,13 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
 
     @Override
     public V get(Object key) {
-
         V result = null;
         lock.readLock().lock();
         try {
-
             final File toUse;
             if (dirHashKey(key).exists() && (toUse = getFileFromDir(key)) != null) {
                 result= str.unserialize(toUse).getValue();
             }
-
         } finally {
             lock.readLock().unlock();
         }
@@ -98,7 +92,6 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
     @Override
     public int size() {
                   return   count;
-
     }
 
     @Override

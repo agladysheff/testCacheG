@@ -28,8 +28,6 @@ class CacheSubMemory<K, V> implements CacheSub<K, V> {
         try {
             result= storage.get(key);
         } finally {
-
-
             lock.readLock().unlock();
         }
         return result;
