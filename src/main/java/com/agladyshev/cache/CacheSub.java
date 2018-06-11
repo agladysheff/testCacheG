@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface CacheSub<K, V> extends Map<K, V> {
+interface CacheSub<K, V> extends Map<K, V> {
 
     default void putAll(Map m) {
         throw new UnsupportedOperationException();
@@ -15,11 +15,11 @@ public interface CacheSub<K, V> extends Map<K, V> {
         throw new UnsupportedOperationException();
     }
 
-    default Set keySet() {
+    default Set<K> keySet() {
         throw new UnsupportedOperationException();
     }
 
-    default Collection values() {
+    default Collection<V> values() {
         throw new UnsupportedOperationException();
     }
 

@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -78,7 +79,7 @@ public class CachMultTestG {
             while (!x.isDone()) {
             }
         });
-        List<Integer> listResult = listListResult.stream().flatMap(x -> x.stream()).peek(y-> assertEquals(y,listExpect.get(y))
+        List<Integer> listResult = listListResult.stream().flatMap(Collection::stream).peek(y-> assertEquals(y,listExpect.get(y))
             ).collect(Collectors.toList());
         assertEquals(listExpect,listResult);
         assertEquals(n * diff, cache.size());

@@ -17,15 +17,14 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
     private final String directory;
     private int count = 0;
 
-    public CacheSubDisk(String directory) {
+    CacheSubDisk(String directory) {
         this.directory = directory;
     }
 
     @Override
     public V put(K key, V val) {
-        final File dir = dirHashKey(key);
-        if (!dir.exists())
-            dir.mkdirs();
+        File dir = dirHashKey(key);
+        if (!dir.exists()) dir.mkdirs();
         count++;
         str.serialize(key, val, newFileHashVal(key, val));
         return val;
@@ -71,7 +70,7 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
 
     @Override
     public V remove(Object key) {
-        final File toUse;
+        File toUse;
         if (dirHashKey(key).exists() && (toUse = getFileFromDir(key)) != null) {
             toUse.delete();
             count--;
@@ -126,7 +125,7 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
     @Override
     public boolean containsValue(Object value) {
         Boolean result = false;
-       final File [] folders=new File(directory).listFiles();
+       File [] folders=new File(directory).listFiles();
        if (folders!=null)
         result = Arrays.stream(folders)
                 .map(x -> Arrays.asList(Objects.requireNonNull(x.listFiles())))

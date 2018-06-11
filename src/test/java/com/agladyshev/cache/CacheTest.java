@@ -4,7 +4,9 @@ package com.agladyshev.cache;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.util.stream.IntStream;
+
 import static org.junit.Assert.*;
 
 
@@ -61,6 +63,15 @@ public class CacheTest {
         assertNull(cache.get(KEY2));
         assertEquals(0,cache.size());
         assertFalse(cache.containsValue(VALUE2));
+    }
+
+    @Test
+    public void CTest() {
+        IntStream.range(0, SIZE_CACHE_MEMORY + SIZE_CACHE_DISK).forEach(x -> cache.put("k" + x, "v" + x)
+        );
+        IntStream.range(0, SIZE_CACHE_MEMORY).forEach(x -> assertTrue(cache.getCacheDisk().containsKey("k" + x)));
+        IntStream.range(SIZE_CACHE_MEMORY + 1, SIZE_CACHE_MEMORY + SIZE_CACHE_DISK)
+                .forEach(x -> assertTrue(cache.getCacheMemory().containsKey("k" + x)));
     }
 
    }

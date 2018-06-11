@@ -7,7 +7,7 @@ import java.util.AbstractMap;
 
      public void serialize(K key, V value, File file) {
          try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-              ObjectOutputStream oos = new ObjectOutputStream(os);) {
+              ObjectOutputStream oos = new ObjectOutputStream(os)) {
              oos.writeObject(key);
              oos.writeObject(value);
              oos.flush();
@@ -19,7 +19,7 @@ import java.util.AbstractMap;
      public AbstractMap.SimpleEntry<K, V> unserialize(File file) {
          AbstractMap.SimpleEntry<K, V> result;
          try (InputStream is = new BufferedInputStream(new FileInputStream(file));
-              ObjectInputStream ois = new ObjectInputStream(is);) {
+              ObjectInputStream ois = new ObjectInputStream(is)) {
              @SuppressWarnings("unchecked")
              K key = (K) ois.readObject();
              @SuppressWarnings("unchecked")

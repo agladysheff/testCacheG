@@ -70,8 +70,7 @@ public class CachMultTestA {
         Integer diff = 150;
         List<List<Integer>> listListResult = IntStream.range(0, n).mapToObj(x -> new ArrayList<Integer>()).collect(Collectors.toList());
         ExecutorService executorService = Executors.newFixedThreadPool(20);
-        List<Integer> listExpect = IntStream.range(0, n * diff).mapToObj(x ->
-                x).collect(Collectors.toList());
+        List<Integer> listExpect = IntStream.range(0, n * diff).boxed().collect(Collectors.toList());
         IntStream.range(0, n).mapToObj(x -> executorService.submit(() -> asyncPutGet(x, diff, listListResult.get(x)))).collect(Collectors.toList()).forEach(x -> {
             while (!x.isDone()) {
             }

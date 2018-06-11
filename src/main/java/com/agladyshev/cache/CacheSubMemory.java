@@ -45,7 +45,7 @@ class CacheSubMemory<K, V> implements CacheSub<K, V> {
 
     @Override
     public int size() {
-        final int result;
+        int result;
         lock.readLock().lock();
         try {
             result= storage.size();
@@ -57,7 +57,7 @@ class CacheSubMemory<K, V> implements CacheSub<K, V> {
 
     @Override
     public boolean containsKey(Object key) {
-        final boolean result;
+        boolean result;
         lock.readLock().lock();
         try {
             result= storage.containsKey(key);
@@ -77,8 +77,8 @@ class CacheSubMemory<K, V> implements CacheSub<K, V> {
     }
 
     public List<Map.Entry<K, V>> getCLastList(int num) {
-        final List<Map.Entry<K, V>> list = new ArrayList<>();
-        final Iterator<Map.Entry<K, V>> iterator = storage.entrySet().iterator();
+         List<Map.Entry<K, V>> list = new ArrayList<>();
+         Iterator<Map.Entry<K, V>> iterator = storage.entrySet().iterator();
         int n = 0;
         while (iterator.hasNext() && n <num) {
             n++;
