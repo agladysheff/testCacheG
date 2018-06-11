@@ -1,5 +1,7 @@
 package com.agladyshev.cache;
+import javax.swing.text.html.HTMLDocument;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -72,13 +74,19 @@ public class Cache<K extends Serializable, V extends Serializable>  {
             if (resultD != null) {
                 lock.writeLock().lock();
                 try {
-                    Map.Entry<K,V> as= cacheMemory.entrySet().iterator().next();
-                    K k = as.getKey();
-                    V v = as.getValue();
-                    cacheDisk.remove(key);
-                    cacheMemory.remove(k);
-                    cacheMemory.put((K)key, result);
-                    cacheDisk.put(k, v);
+                    Iterator<Map.Entry<K, V>> iterator = cacheMemory.entrySet().iterator();
+                    if (iterator.hasNext()) {
+                        Map.Entry<K, V> as = iterator.next();
+                        K k = as.getKey();
+                        V v = as.getValue();
+                        cacheDisk.remove(key);
+                        cacheMemory.remove(k);
+                        cacheMemory.put((K) key, result);
+                        cacheDisk.put(k, v);
+                    } else {
+                        cacheDisk.remove(key);
+                        cacheMemory.put((K) key, result);
+                    }
                 } finally {
                     lock.writeLock().unlock();
                 }
