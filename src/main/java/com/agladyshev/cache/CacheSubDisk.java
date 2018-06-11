@@ -24,9 +24,10 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
     @Override
     public V put(K key, V val) {
         File dir = dirHashKey(key);
-        if (!dir.exists()) dir.mkdirs();
-        count++;
-        str.serialize(key, val, newFileHashVal(key, val));
+        if (dir.exists() || dir.mkdirs()) {
+            str.serialize(key, val, newFileHashVal(key, val));
+            count++;
+        }
         return val;
     }
 
@@ -72,8 +73,9 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
     public V remove(Object key) {
         File toUse;
         if (dirHashKey(key).exists() && (toUse = getFileFromDir(key)) != null) {
-            toUse.delete();
-            count--;
+            if (toUse.delete()) {
+                count--;
+            }
         }
         return get(key);
     }
