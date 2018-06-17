@@ -1,15 +1,17 @@
 package com.agladyshev.cache;
 
-
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 
 class CacheSubDisk<K extends Serializable, V extends Serializable> implements CacheSub<K, V> {
     private final Serialization<K, V> str = new Serialization<>();
@@ -32,7 +34,7 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
     }
 
     @Override
-    public V replace (K key, V val) {
+    public V replace(K key, V val) {
         lock.writeLock().lock();
         try {
             str.serialize(key, val, getFileFromDir(key));
@@ -47,7 +49,7 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
        boolean result;
         lock.readLock().lock();
         try {
-            result= dirHashKey(key).exists() && (getFileFromDir(key) != null);
+            result = dirHashKey(key).exists() && (getFileFromDir(key) != null);
         } finally {
             lock.readLock().unlock();
         }
@@ -61,7 +63,7 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
         try {
             final File toUse;
             if (dirHashKey(key).exists() && (toUse = getFileFromDir(key)) != null) {
-                result= str.unserialize(toUse).getValue();
+                result = str.unserialize(toUse).getValue();
             }
         } finally {
             lock.readLock().unlock();
@@ -111,13 +113,16 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
     private File newFileHashVal(K key, V val) {
         return new File(directory + key.hashCode() + "/" + val.hashCode() + randomString() + ".txt");
     }
-    public List<Map.Entry<K, V>> getCLastList(int num) {
+
+    public List<Entry<K, V>> getCLastList(int num) {
         throw new UnsupportedOperationException();
     }
 
     private File getFileFromDir(Object key) {
-        File[] files=dirHashKey(key).listFiles();
-        if (files==null)return null;
+        File[] files = dirHashKey(key).listFiles();
+        if (files == null) {
+            return null;
+        }
         return Stream.of(files)
                 .filter(x -> (str.unserialize(x).getKey()).equals(key))
                 .findFirst()
@@ -127,12 +132,13 @@ class CacheSubDisk<K extends Serializable, V extends Serializable> implements Ca
     @Override
     public boolean containsValue(Object value) {
         Boolean result = false;
-       File [] folders=new File(directory).listFiles();
-       if (folders!=null)
-        result = Arrays.stream(folders)
-                .map(x -> Arrays.asList(Objects.requireNonNull(x.listFiles())))
-                .flatMap(Collection::stream)
-                .anyMatch(z -> str.unserialize(z).getValue().equals(value));
+        File[] folders = new File(directory).listFiles();
+        if (folders != null) {
+            result = Arrays.stream(folders)
+                    .map(x -> Arrays.asList(Objects.requireNonNull(x.listFiles())))
+                    .flatMap(Collection::stream)
+                    .anyMatch(z -> str.unserialize(z).getValue().equals(value));
+        }
         return result;
     }
 

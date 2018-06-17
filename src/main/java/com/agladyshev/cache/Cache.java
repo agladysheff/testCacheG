@@ -1,4 +1,5 @@
 package com.agladyshev.cache;
+
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
@@ -14,8 +15,8 @@ public class Cache<K extends Serializable, V extends Serializable>  {
     private final int sizeCacheMemory;
     private final int sizeCacheDisk;
     private final ReentrantReadWriteLock  lock = new ReentrantReadWriteLock();
-    private final Lock lockW =lock.writeLock();
-    private final Lock lockR =lock.readLock();
+    private final Lock lockW = lock.writeLock();
+    private final Lock lockR = lock.readLock();
     private final StrategyType strategy;
 
 
@@ -23,8 +24,8 @@ public class Cache<K extends Serializable, V extends Serializable>  {
         this.sizeCacheMemory = sizeCacheMemory;
         this.sizeCacheDisk = sizeCacheDisk;
         this.strategy = strategy;
-        this.cacheMemory =new CacheSubMemory<>();
-        this.cacheDisk=new CacheSubDisk<>(directory);
+        this.cacheMemory = new CacheSubMemory<>();
+        this.cacheDisk = new CacheSubDisk<>(directory);
     }
 
     public V put(K key, V val) {
@@ -78,11 +79,12 @@ public class Cache<K extends Serializable, V extends Serializable>  {
                         V v = as.getValue();
                         cacheDisk.remove(key);
                         cacheMemory.remove(k);
-                        cacheMemory.put( key, result);
                         cacheDisk.put(k, v);
+                        cacheMemory.put(key, result);
+
                     } else {
                         cacheDisk.remove(key);
-                        cacheMemory.put( key, result);
+                        cacheMemory.put(key, result);
                     }
                 } finally {
                     lock.writeLock().unlock();
@@ -97,7 +99,9 @@ public class Cache<K extends Serializable, V extends Serializable>  {
        lockW.lock();
         try {
              value = cacheMemory.remove(key);
-            if (value == null) value = cacheDisk.remove(key);
+            if (value == null) {
+                value = cacheDisk.remove(key);
+            }
         } finally {
             lockW.unlock();
         }
@@ -119,7 +123,7 @@ public class Cache<K extends Serializable, V extends Serializable>  {
         int result;
         lockR.lock();
         try {
-            result= cacheMemory.size() + cacheDisk.size();
+            result = cacheMemory.size() + cacheDisk.size();
         } finally {
             lockR.unlock();
         }
@@ -130,7 +134,7 @@ public class Cache<K extends Serializable, V extends Serializable>  {
         boolean result;
         lockR.lock();
         try {
-            result= cacheMemory.containsValue(value)||cacheDisk.containsValue(value);
+            result = cacheMemory.containsValue(value) || cacheDisk.containsValue(value);
         } finally {
             lockR.unlock();
         }
@@ -153,7 +157,7 @@ public class Cache<K extends Serializable, V extends Serializable>  {
         boolean result;
         lockR.lock();
         try {
-            result= cacheMemory.containsKey(key) || cacheDisk.containsKey(key);
+            result = cacheMemory.containsKey(key) || cacheDisk.containsKey(key);
         } finally {
             lockR.unlock();
         }

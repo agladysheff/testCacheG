@@ -1,7 +1,11 @@
 package com.agladyshev.cache;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
@@ -26,7 +30,7 @@ class CacheSubMemory<K, V> implements CacheSub<K, V> {
         V result;
         lock.readLock().lock();
         try {
-            result= storage.get(key);
+            result = storage.get(key);
         } finally {
             lock.readLock().unlock();
         }
@@ -48,7 +52,7 @@ class CacheSubMemory<K, V> implements CacheSub<K, V> {
         int result;
         lock.readLock().lock();
         try {
-            result= storage.size();
+            result = storage.size();
         } finally {
             lock.readLock().unlock();
         }
@@ -60,7 +64,7 @@ class CacheSubMemory<K, V> implements CacheSub<K, V> {
         boolean result;
         lock.readLock().lock();
         try {
-            result= storage.containsKey(key);
+            result = storage.containsKey(key);
         } finally {
             lock.readLock().unlock();
         }
@@ -76,11 +80,11 @@ class CacheSubMemory<K, V> implements CacheSub<K, V> {
         return storage.isEmpty();
     }
 
-    public List<Map.Entry<K, V>> getCLastList(int num) {
+    public List<Entry<K, V>> getCLastList(int num) {
          List<Map.Entry<K, V>> list = new ArrayList<>();
-         Iterator<Map.Entry<K, V>> iterator = storage.entrySet().iterator();
+         Iterator<Entry<K, V>> iterator = storage.entrySet().iterator();
         int n = 0;
-        while (iterator.hasNext() && n <num) {
+        while (iterator.hasNext() && n < num) {
             n++;
             Map.Entry<K, V> x = iterator.next();
             list.add(x);

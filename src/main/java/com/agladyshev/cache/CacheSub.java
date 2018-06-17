@@ -11,10 +11,6 @@ interface CacheSub<K, V> extends Map<K, V> {
         throw new UnsupportedOperationException();
     }
 
-    default boolean containsValue(Object value) {
-        throw new UnsupportedOperationException();
-    }
-
     default Set<K> keySet() {
         throw new UnsupportedOperationException();
     }

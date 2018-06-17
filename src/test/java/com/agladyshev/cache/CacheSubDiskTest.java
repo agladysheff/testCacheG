@@ -1,44 +1,42 @@
 package com.agladyshev.cache;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 
 public class CacheSubDiskTest {
 
     private CacheSubDisk<String,String> cache;
-    private final String KEY1="key1";
-    private final String KEY2="key2";
-    private final String VALUE1="value1";
-    private final String VALUE2="value2";
+    private final String KEY1 = "key1";
+    private final String KEY2 = "key2";
+    private final String VALUE1 = "value1";
+    private final String VALUE2 = "value2";
 
     @Before
-    public  void init(){
-        cache=new CacheSubDisk<>("C:/994/");
+    public  void init() {
+        cache = new CacheSubDisk<>("C:/994/");
 cache.clear();
 
     }
+
     @After
-    public  void clearCache(){
-
+    public void clearCache() {
         try {
-            cache.
-
-                clear();
+            cache.clear();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
 
     @Test
-    public void addGetRemoveSizeTest(){
-
+    public void addGetRemoveSizeTest() {
         cache.put(KEY1,VALUE1);
         assertEquals(VALUE1, cache.get(KEY1));
         assertEquals(1,cache.size());
@@ -64,15 +62,13 @@ cache.clear();
     }
 
     @Test
-    public void clearCTest(){
-
+    public void clearCTest() {
         cache.put(KEY1,VALUE1);
         cache.put(KEY2,VALUE2);
         cache.clear();
         assertNull(cache.get(KEY1));
         assertNull(cache.get(KEY2));
         assertEquals(0,cache.size());
-
     }
 
 
