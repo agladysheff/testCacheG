@@ -72,19 +72,19 @@ public class Cache<K extends Serializable, V extends Serializable>  {
             if (resultD != null) {
                 lock.writeLock().lock();
                 try {
-                    Iterator<Map.Entry<K, V>> iterator = cacheMemory.entrySet().iterator();
-                    if (iterator.hasNext()) {
-                        Map.Entry<K, V> as = iterator.next();
-                        K k = as.getKey();
-                        V v = as.getValue();
-                        cacheDisk.remove(key);
-                        cacheMemory.remove(k);
-                        cacheDisk.put(k, v);
-                        cacheMemory.put(key, result);
-
+                    V result1 = result;
+                    if (!cacheMemory.isEmpty()) {
+                        cacheMemory.entrySet().stream()
+                                .limit(1)
+                                .forEach((as) -> {
+                                    cacheDisk.remove(key);
+                                    cacheMemory.remove(as.getKey());
+                                    cacheDisk.put(as.getKey(), as.getValue());
+                                    cacheMemory.put(key, result1);
+                                });
                     } else {
                         cacheDisk.remove(key);
-                        cacheMemory.put(key, result);
+                        cacheMemory.put(key, result1);
                     }
                 } finally {
                     lock.writeLock().unlock();

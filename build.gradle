@@ -1,6 +1,5 @@
 
 apply plugin: 'java'
-apply plugin: 'jacoco'
 apply plugin: 'maven'
 apply plugin: 'checkstyle'
 group 'test'
@@ -24,9 +23,7 @@ jar {
     baseName = 'testCacheG+'
 }
 
-jacoco {
-    toolVersion = "0.8.1"
-}
+
 checkstyle {
     toolVersion = "8.10"
     config = rootProject.resources.text.fromFile('config/checkstyle/checkstyle.xml')
